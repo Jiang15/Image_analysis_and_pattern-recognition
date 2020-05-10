@@ -54,7 +54,7 @@ class DataGenerator(keras.utils.Sequence):
         
         
 ############ MODEL ###############
-class MLPModel:
+class CNNModel:
     def __init__(self, model_dir='.', num_classes=14, load=False, verbose=True):
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)

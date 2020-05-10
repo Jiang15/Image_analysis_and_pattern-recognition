@@ -1,4 +1,5 @@
 from keras.utils import to_categorical
+import cv2
 import numpy as np
 
 def remove_9(x, y):
@@ -82,7 +83,11 @@ def preprocessing_our_data(objects):
 
     for im in objects:
         im = im * 255.
-        toRecognize.append(im)
+        resized_digit = cv2.resize(im, (26,26))
+
+        padded_digit = np.pad(resized_digit, ((1,1),(1,1)), "constant", constant_values=0)
+        toRecognize.append(padded_digit)
+
 #         toRecognize.append(normalize(im))
 
     toRecognize = np.stack(toRecognize)
