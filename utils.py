@@ -43,6 +43,9 @@ def replicate(X, left=13, right=13, up=21, down=21):
 
 #     return x
 
+# def load_mnist_data():
+    
+
 def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_labels, num_classes=14):
     image_height = train_digits.shape[1]  
     image_width = train_digits.shape[2]
@@ -53,13 +56,13 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
     test_data = np.reshape(test_digits, (test_digits.shape[0],image_height, image_width, num_channels))
 
     # re-scale the image data to values between (0.0,1.0]
-    train_data = train_data.astype('float32') / 255.
-    test_data = test_data.astype('float32') / 255.
+#     train_data = train_data.astype('float32') / 255.
+#     test_data = test_data.astype('float32') / 255.
 
     # add padding to have image similar to our images
-    train_data = replicate(train_data)
+#     train_data = replicate(train_data)
     # train_data = normalize(train_data, batch=True)
-    test_data = replicate(test_data, left=16, right=16, up=24, down=24)
+#     test_data = replicate(test_data, left=16, right=16, up=24, down=24)
     # test_data = normalize(test_data, batch=True)
 
     # one-hot encode the labels - we have 9 output classes (esclude 9!)
@@ -72,9 +75,9 @@ def preprocessing_our_data(objects):
     toRecognize = []
 
     for im in objects:
-        im_01 = im.astype('float32') / 255.
-        toRecognize.append(im_01)
-        # toRecognize.append(normalize(im_01))
+        im = im * 255.
+        toRecognize.append(im)
+#         toRecognize.append(normalize(im))
 
     toRecognize = np.stack(toRecognize)
     return toRecognize
