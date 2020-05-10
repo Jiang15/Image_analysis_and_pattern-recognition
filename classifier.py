@@ -9,18 +9,20 @@ import json
 import os
 import numpy as np
 from utils import replicate
+from keras.optimizers import RMSprop
+
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, x, y, extend_max=6, batch_size=64, shuffle=True):
+    def __init__(self, x, y, extend_max=6, batch_size=128, shuffle=True):
         'Initialization'
         self.batch_size = batch_size
 
         self.image_gen = ImageDataGenerator(
             rotation_range=360,
-            width_shift_range=0.1,
-            height_shift_range=0.1,
-            zoom_range=[0.8, 1.8]
+            width_shift_range=0.3,
+            height_shift_range=0.3,
+            zoom_range=[0.9, 1.2]
         ).flow(x, y=y, batch_size=batch_size, shuffle=shuffle)
 
         self.extend_max = extend_max
@@ -52,7 +54,7 @@ class DataGenerator(keras.utils.Sequence):
         
         
 ############ MODEL ###############
-class CNNModel:
+class MLPModel:
     def __init__(self, model_dir='.', num_classes=14, load=False, verbose=True):
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
@@ -64,47 +66,72 @@ class CNNModel:
         else:
             self.model = Sequential([
                 # Conv layers
-                Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same', input_shape=(None, None, 1)),
-                BatchNormalization(),
+                Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(28, 28, 1)),
+#                 BatchNormalization(),
                 MaxPooling2D(pool_size=(2,2)),
                 Dropout(0.20),
 
                 Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same'),
-                BatchNormalization(),
+#                 BatchNormalization(),
                 MaxPooling2D(pool_size=(2,2)),
                 Dropout(0.20),
 
-                Conv2D(filters=512, kernel_size=(3,3), activation='relu', padding='same'),
-                BatchNormalization(),
-                MaxPooling2D(pool_size=(2,2)),
-                Dropout(0.20),
+#                 Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same'),
+#                 BatchNormalization(),
+#                 MaxPooling2D(pool_size=(2,2)),
+#                 Dropout(0.20),
 
-                # Flatten(),
-                Lambda(lambda x: K.mean(x, axis=[1, 2])),
+                Flatten(),
+#                 Lambda(lambda x: K.mean(x, axis=[1, 2])),
 
                 # Densely connected layers
                 Dense(128, activation='relu'),
                 BatchNormalization(),
 
-                # Output layer
+#                 Output layer
                 Dense(num_classes, activation='softmax')
+                
+#                 Dense(512, activation='relu', input_shape=(28*28,)),
+#                 Dropout(0.2),
+#                 Dense(512, activation='relu'),
+#                 Dropout(0.2),
+# #                 Flatten(),
+#                 Dense(num_classes, activation='softmax')
+
             ])
+
 
             # compile with adam optimizer & categorical_crossentropy loss function
             self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+#             self.model.compile(loss='categorical_crossentropy',
+#                               optimizer=RMSprop(),
+#                               metrics=['accuracy'])
             
         if verbose:
             print(self.model.summary())
     
-    def fit(self, x, y, epochs=50, batch_size=64):
+    def fit(self, x, y, x_val=None, y_val=None, epochs=20, batch_size=128):
         # get train and validation splits
-        x_train, x_valid, y_train, y_valid = train_test_split(x, y, test_size=0.10, shuffle=True)
+        if x_val is None:
+            x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.10, shuffle=True)
+        else:
+            x_train = x
+            y_train = y
+        
+#         x_train = np.reshape(x_train, [-1, 28, 28, 1])
+#         print(x_train.shape)
 
         # instantiate the data generator
         train_generator = DataGenerator(x_train, y=y_train, batch_size=batch_size)
-
-        # train
-        self.history = self.model.fit(train_generator, epochs=epochs, validation_data=(x_valid, y_valid))
+        
+#         for b in len(train_generator):
+#             x, y = train_generator[b]
+#             x =  np.reshape(x, [-1, 28*28])
+#             self.model.fit(x, y, epochs=epochs, validation_data=(x_valid, y_valid))
+                    
+# #         print(train_generator.shape)
+        
+        self.history = self.model.fit(train_generator, epochs=epochs, validation_data=(x_val, y_val))
         
     def save(self):
         # save the model architecture
