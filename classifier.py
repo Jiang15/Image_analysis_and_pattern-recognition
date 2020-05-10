@@ -44,8 +44,8 @@ class DataGenerator(keras.utils.Sequence):
         )
         
         # Add noise on half of the samples in the batch
-        half_batch = self.batch_size//2
-        X[:half_batch] = skimage.util.random_noise(X[:half_batch], mode="gaussian", mean=0, var=0.05, clip=False)
+#         half_batch = self.batch_size//2
+#         X[:half_batch] = skimage.util.random_noise(X[:half_batch], mode="gaussian", mean=0, var=0.05, clip=False)
         
         return X, y
 

@@ -72,7 +72,7 @@ def preprocessing_our_data(objects):
     toRecognize = []
 
     for im in objects:
-        im_01 = (1 - im.astype('float32') / 255.)
+        im_01 = im.astype('float32') / 255.
         toRecognize.append(im_01)
         # toRecognize.append(normalize(im_01))
 
