@@ -55,6 +55,9 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
     # re-shape the images data
     train_data = np.reshape(train_digits, (train_digits.shape[0], image_height, image_width, num_channels))
     test_data = np.reshape(test_digits, (test_digits.shape[0],image_height, image_width, num_channels))
+    
+    # threshold
+    train_data[train_data > 0] = 255
 
 #     train_data = train_digits.reshape(-1, 784)
 #     test_data = test_digits.reshape(-1, 784)
@@ -65,12 +68,10 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
 
     # add padding to have image similar to our images
 #     train_data = replicate(train_data)
-    # train_data = normalize(train_data, batch=True)
+    train_data = normalize(train_data, batch=True)
 #     test_data = replicate(test_data, left=16, right=16, up=24, down=24)
-    # test_data = normalize(test_data, batch=True)
-    
-    # threshold
-    train_data[train_data > 0] = 255
+    test_data = normalize(test_data, batch=True)
+   
 
     # one-hot encode the labels - we have 9 output classes (esclude 9!)
     # so 3 -> [0 0 0 1 0 0 0 0 0 0], 5 -> [0 0 0 0 0 1 0 0 0 0] & so on
@@ -86,7 +87,7 @@ def preprocessing_our_data(objects):
         resized_digit = cv2.resize(im, (26,26))
 
         padded_digit = np.pad(resized_digit, ((1,1),(1,1)), "constant", constant_values=0)
-        toRecognize.append(padded_digit)
+        toRecognize.append(normalize(padded_digit))
 
 #         toRecognize.append(normalize(im))
 

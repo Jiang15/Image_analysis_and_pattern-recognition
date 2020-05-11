@@ -20,8 +20,8 @@ class DataGenerator(keras.utils.Sequence):
 
         self.image_gen = ImageDataGenerator(
             rotation_range=360,
-            width_shift_range=0.3,
-            height_shift_range=0.3,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
             zoom_range=[0.9, 1.2]
         ).flow(x, y=y, batch_size=batch_size, shuffle=shuffle)
 
@@ -65,38 +65,62 @@ class CNNModel:
             self.load()
         else:
             self.model = Sequential([
-                # Conv layers
-                Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(28, 28, 1)),
-#                 BatchNormalization(),
+                Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same', input_shape=(None, None, 1)),
+                BatchNormalization(),
                 MaxPooling2D(pool_size=(2,2)),
                 Dropout(0.20),
 
                 Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same'),
-#                 BatchNormalization(),
+                BatchNormalization(),
                 MaxPooling2D(pool_size=(2,2)),
                 Dropout(0.20),
 
-#                 Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same'),
-#                 BatchNormalization(),
-#                 MaxPooling2D(pool_size=(2,2)),
-#                 Dropout(0.20),
+                Conv2D(filters=512, kernel_size=(3,3), activation='relu', padding='same'),
+                BatchNormalization(),
+                MaxPooling2D(pool_size=(2,2)),
+                Dropout(0.20),
 
-                Flatten(),
-#                 Lambda(lambda x: K.mean(x, axis=[1, 2])),
+                # Flatten(),
+                Lambda(lambda x: K.mean(x, axis=[1, 2])),
 
                 # Densely connected layers
                 Dense(128, activation='relu'),
                 BatchNormalization(),
 
-#                 Output layer
+                # Output layer
                 Dense(num_classes, activation='softmax')
-                
-#                 Dense(512, activation='relu', input_shape=(28*28,)),
-#                 Dropout(0.2),
-#                 Dense(512, activation='relu'),
-#                 Dropout(0.2),
-# #                 Flatten(),
+#                 # Conv layers
+#                 Conv2D(filters=32, kernel_size=(5,5), activation='relu', padding='same', input_shape=(28, 28, 1)),
+#                 BatchNormalization(),
+# #                 MaxPooling2D(pool_size=(2,2)),
+#                 Dropout(0.20),
+
+#                 Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same'),
+#                 BatchNormalization(),
+# #                 MaxPooling2D(pool_size=(2,2)),
+# #                 Dropout(0.20),
+
+#                 Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same'),
+#                 BatchNormalization(),
+#                 MaxPooling2D(pool_size=(2,2)),
+#                 Dropout(0.20),
+
+#                 Flatten(),
+# #                 Lambda(lambda x: K.mean(x, axis=[1, 2])),
+
+#                 # Densely connected layers
+#                 Dense(128, activation='relu'),
+#                 BatchNormalization(),
+
+# #                 Output layer
 #                 Dense(num_classes, activation='softmax')
+                
+# #                 Dense(512, activation='relu', input_shape=(28*28,)),
+# #                 Dropout(0.2),
+# #                 Dense(512, activation='relu'),
+# #                 Dropout(0.2),
+# # #                 Flatten(),
+# #                 Dense(num_classes, activation='softmax')
 
             ])
 
@@ -117,19 +141,9 @@ class CNNModel:
         else:
             x_train = x
             y_train = y
-        
-#         x_train = np.reshape(x_train, [-1, 28, 28, 1])
-#         print(x_train.shape)
 
         # instantiate the data generator
         train_generator = DataGenerator(x_train, y=y_train, batch_size=batch_size)
-        
-#         for b in len(train_generator):
-#             x, y = train_generator[b]
-#             x =  np.reshape(x, [-1, 28*28])
-#             self.model.fit(x, y, epochs=epochs, validation_data=(x_valid, y_valid))
-                    
-# #         print(train_generator.shape)
         
         self.history = self.model.fit(train_generator, epochs=epochs, validation_data=(x_val, y_val))
         
