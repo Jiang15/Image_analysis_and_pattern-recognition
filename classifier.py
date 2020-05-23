@@ -14,7 +14,7 @@ from keras.optimizers import RMSprop
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, x, y, extend_max=6, batch_size=128, shuffle=True):
+    def __init__(self, x, y, batch_size=128, shuffle=True):
         'Initialization'
         self.batch_size = batch_size
 
@@ -22,10 +22,8 @@ class DataGenerator(keras.utils.Sequence):
             rotation_range=360,
             width_shift_range=0.2,
             height_shift_range=0.2,
-            zoom_range=[0.9, 1.2]
+            zoom_range=[0.9, 1.1]
         ).flow(x, y=y, batch_size=batch_size, shuffle=shuffle)
-
-        self.extend_max = extend_max
 
     def __len__(self):
         'Denotes the number of batches per epoch'
@@ -35,17 +33,7 @@ class DataGenerator(keras.utils.Sequence):
         'Generate one batch of data'
         # Get data
         X, y = self.image_gen[index]
-
-        # Add some random padding
-#         X = replicate(
-#             X,
-#             left=np.random.randint(self.extend_max),
-#             right=np.random.randint(self.extend_max),
-#             up=np.random.randint(self.extend_max),
-#             down=np.random.randint(self.extend_max)
-#         )
         
-    
         return X, y
 
     def on_epoch_end(self):
@@ -55,7 +43,7 @@ class DataGenerator(keras.utils.Sequence):
         
 ############ MODEL ###############
 class CNNModel:
-    def __init__(self, model_dir='.', num_classes=14, load=False, verbose=True):
+    def __init__(self, model_dir='.', num_classes=9, load=False, verbose=True):
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         self.json_model_file=model_dir + '/json_model.json'
@@ -80,7 +68,7 @@ class CNNModel:
                 MaxPooling2D(pool_size=(2,2)),
                 Dropout(0.20),
 
-                # Flatten(),
+                # Flatten considering all the input sizes
                 Lambda(lambda x: K.mean(x, axis=[1, 2])),
 
                 # Densely connected layers
@@ -89,47 +77,12 @@ class CNNModel:
 
                 # Output layer
                 Dense(num_classes, activation='softmax')
-#                 # Conv layers
-#                 Conv2D(filters=32, kernel_size=(5,5), activation='relu', padding='same', input_shape=(28, 28, 1)),
-#                 BatchNormalization(),
-# #                 MaxPooling2D(pool_size=(2,2)),
-#                 Dropout(0.20),
-
-#                 Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same'),
-#                 BatchNormalization(),
-# #                 MaxPooling2D(pool_size=(2,2)),
-# #                 Dropout(0.20),
-
-#                 Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same'),
-#                 BatchNormalization(),
-#                 MaxPooling2D(pool_size=(2,2)),
-#                 Dropout(0.20),
-
-#                 Flatten(),
-# #                 Lambda(lambda x: K.mean(x, axis=[1, 2])),
-
-#                 # Densely connected layers
-#                 Dense(128, activation='relu'),
-#                 BatchNormalization(),
-
-# #                 Output layer
-#                 Dense(num_classes, activation='softmax')
-                
-# #                 Dense(512, activation='relu', input_shape=(28*28,)),
-# #                 Dropout(0.2),
-# #                 Dense(512, activation='relu'),
-# #                 Dropout(0.2),
-# # #                 Flatten(),
-# #                 Dense(num_classes, activation='softmax')
 
             ])
 
 
             # compile with adam optimizer & categorical_crossentropy loss function
             self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-#             self.model.compile(loss='categorical_crossentropy',
-#                               optimizer=RMSprop(),
-#                               metrics=['accuracy'])
             
         if verbose:
             print(self.model.summary())

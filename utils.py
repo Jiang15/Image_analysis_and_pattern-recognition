@@ -1,6 +1,8 @@
 from keras.utils import to_categorical
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt 
+
 
 def remove_9(x, y):
     mask = y != 9
@@ -47,7 +49,7 @@ def replicate(X, left=13, right=13, up=21, down=21):
 # def load_mnist_data():
     
 
-def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_labels, num_classes=14):
+def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_labels, num_classes=9):
     image_height = train_digits.shape[1]  
     image_width = train_digits.shape[2]
     num_channels = 1  # we have grayscale images
@@ -67,9 +69,7 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
 #     test_data = test_data.astype('float32') / 255.
 
     # add padding to have image similar to our images
-#     train_data = replicate(train_data)
     train_data = normalize(train_data, batch=True)
-#     test_data = replicate(test_data, left=16, right=16, up=24, down=24)
     test_data = normalize(test_data, batch=True)
    
 
@@ -81,15 +81,22 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
 
 def preprocessing_our_data(objects):
     toRecognize = []
+    
+    # esclude images with index: 2, 3, 6, 9
+    idx = 0
 
     for im in objects:
         im = im * 255.
         resized_digit = cv2.resize(im, (26,26))
 
         padded_digit = np.pad(resized_digit, ((1,1),(1,1)), "constant", constant_values=0)
-        toRecognize.append(normalize(padded_digit))
-
-#         toRecognize.append(normalize(im))
+        im[im > 0] = 255
+        if((idx in [2, 3, 6, 9]) == False):
+            toRecognize.append(normalize(padded_digit))
+#         else: #check we excluded digits
+#             plt.imshow(padded_digit)
+#             plt.show()
+        idx = idx + 1
 
     toRecognize = np.stack(toRecognize)
     return toRecognize
