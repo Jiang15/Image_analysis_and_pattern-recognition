@@ -79,7 +79,7 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
     test_labels_cat = to_categorical(test_labels, num_classes)
     return train_data, train_labels_cat, test_data, test_labels_cat
 
-def preprocessing_our_data(objects):
+def preprocessing_our_data(objects, to_exclude=False):
     toRecognize = []
     
     # esclude images with index: 2, 3, 6, 9
@@ -91,7 +91,9 @@ def preprocessing_our_data(objects):
 
         padded_digit = np.pad(resized_digit, ((1,1),(1,1)), "constant", constant_values=0)
         im[im > 0] = 255
-        if((idx in [2, 3, 6, 9]) == False):
+        if(not to_exclude):
+            toRecognize.append(normalize(padded_digit))
+        elif(to_exclude and ((idx in [2, 3, 6, 9]) == False)):
             toRecognize.append(normalize(padded_digit))
 #         else: #check we excluded digits
 #             plt.imshow(padded_digit)
