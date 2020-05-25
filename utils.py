@@ -27,27 +27,6 @@ def replicate(X, left=13, right=13, up=21, down=21):
 
     return X
 
-# def replicate_img(x, left=13, right=13, up=21, down=21):
-#     """
-#     Given a batch of images (of shape (num samples, image height, image width, num channels)),
-#     replicates all the images' border on the 4 sides.
-#     """
-#     # left
-#     x = np.concatenate((np.tile(x[:, :1], (1, left, 1)), x), axis=1)
-
-#     # right
-#     x = np.concatenate((x, np.tile(x[:, -1:], (1, right, 1))), axis=1)
-
-#     # up
-#     x = np.concatenate((np.tile(x[:1, :], (up, 1, 1)), x), axis=0)
-
-#     # down
-#     x = np.concatenate((x, np.tile(x[-1:, :], (down, 1, 1))), axis=0)
-
-#     return x
-
-# def load_mnist_data():
-    
 
 def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_labels, num_classes=9):
     image_height = train_digits.shape[1]  
@@ -60,13 +39,6 @@ def preprocessing_mnist_data(train_digits, train_labels, test_digits, test_label
     
     # threshold
     train_data[train_data > 0] = 255
-
-#     train_data = train_digits.reshape(-1, 784)
-#     test_data = test_digits.reshape(-1, 784)
-
-    # re-scale the image data to values between (0.0,1.0]
-#     train_data = train_data.astype('float32') / 255.
-#     test_data = test_data.astype('float32') / 255.
 
     # add padding to have image similar to our images
     train_data = normalize(train_data, batch=True)
@@ -95,9 +67,6 @@ def preprocessing_our_data(objects, to_exclude=False):
             toRecognize.append(normalize(padded_digit))
         elif(to_exclude and ((idx in [2, 3, 6, 9]) == False)):
             toRecognize.append(normalize(padded_digit))
-#         else: #check we excluded digits
-#             plt.imshow(padded_digit)
-#             plt.show()
         idx = idx + 1
 
     toRecognize = np.stack(toRecognize)
