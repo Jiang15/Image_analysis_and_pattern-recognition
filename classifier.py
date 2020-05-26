@@ -20,9 +20,9 @@ class DataGenerator(keras.utils.Sequence):
 
         self.image_gen = ImageDataGenerator(
             rotation_range=360,
-            width_shift_range=0.2,
-            height_shift_range=0.2,
-            zoom_range=[0.9, 1.1]
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            zoom_range=[0.95, 1.05]
         ).flow(x, y=y, batch_size=batch_size, shuffle=shuffle)
 
     def __len__(self):

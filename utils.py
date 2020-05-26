@@ -59,14 +59,12 @@ def preprocessing_our_data(objects, to_exclude=False):
 
     for im in objects:
         im = im * 255.
-        resized_digit = cv2.resize(im, (26,26))
-
-        padded_digit = np.pad(resized_digit, ((1,1),(1,1)), "constant", constant_values=0)
+        digit = im.copy()
         im[im > 0] = 255
         if(not to_exclude):
-            toRecognize.append(normalize(padded_digit))
+            toRecognize.append(normalize(digit))
         elif(to_exclude and ((idx in [2, 3, 6, 9]) == False)):
-            toRecognize.append(normalize(padded_digit))
+            toRecognize.append(normalize(digit))
         idx = idx + 1
 
     toRecognize = np.stack(toRecognize)
